@@ -45,16 +45,16 @@ class Encoder(nn.Module):
         self.Encoders = nn.ModuleList(
             [STPECell(self._hidden_dim, i) for i in range(seq_len)]
         )
-        self.conv1 = nn.Conv1d(5, out_channels=hidden_dim, kernel_size=1)
+        self.conv1 = nn.Conv1d(7, out_channels=hidden_dim, kernel_size=1)
 
-        self.linear = nn.Linear(5, 1)
+        self.linear = nn.Linear(7, 1)
         self.hpool = nn.AvgPool1d(kernel_size=1, stride=2, padding=0)
 
     def forward(self, inputs):
         batch_size, seq_len, num_nodes, _ = inputs.shape
         assert self._input_dim == num_nodes
 
-        split_tensors = torch.split(inputs, [1, 5], dim=3)
+        split_tensors = torch.split(inputs, [1, 7], dim=3)
         combine = split_tensors[1]
 
         hidden_state = torch.zeros(batch_size, num_nodes * self._hidden_dim).type_as(inputs)
@@ -67,10 +67,10 @@ class Encoder(nn.Module):
             for j in range(2):  # 临近节点步长
                 output, hidden_state = self.tgcn_cell(x, hidden_state)
 
-            x_conv = combine[:, i, :, :].transpose(1, 2)  # (batch, 5, num_nodes)
+            x_conv = combine[:, i, :, :].transpose(1, 2)  # (batch, 7, num_nodes)
             encoder_h_each_time = []
             for k in range(batch_size):
-                xx = x_conv[k, :, :].reshape(1, 5, num_nodes)  # (1, 5, num_nodes)
+                xx = x_conv[k, :, :].reshape(1, 7, num_nodes)  # (1, 7, num_nodes)
                 xx = self.conv1(xx).transpose(1, 2)  # (1, num_nodes, hidden_dim)
                 if i > 0:
                     each_node_last_hidden = encoder_h[i - 1][k, :, :, :]
