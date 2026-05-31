@@ -57,7 +57,7 @@ def combine_data(case, weather):  # 将对应城市的病例与天气组合
         else:
             result = np.concatenate((result, combined_values))
         i += 1
-        j += 3
+        j += 5
 
     result = result.reshape(case.shape[0], case.shape[1], -1)
     return result
